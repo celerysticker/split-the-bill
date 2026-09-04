@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { AssignmentSheet } from "@/components/AssignmentSheet";
+import { AssignmentSummaryButton } from "@/components/AssignmentSummaryButton";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
-import { PersonAvatar } from "@/components/PersonAvatar";
-import { parsePriceToCents, type UIItem, type UIPerson } from "@/lib/mock-data";
-import { fieldClass, inlineEditClass } from "@/lib/ui";
-
-const INLINE_TOGGLE_LIMIT = 4;
+import {
+  parsePriceToCents,
+  parseStrictPriceToCents,
+  type UIItem,
+  type UIPerson,
+} from "@/lib/mock-data";
+import { INLINE_TOGGLE_LIMIT, fieldClass, inlineEditClass } from "@/lib/ui";
 
 /**
  * Mobile editing — stacked cards. Assignment is inline toggle circles up to
@@ -36,17 +39,31 @@ export function EditorList({
   const [isAdding, setIsAdding] = useState(false);
   const [draftName, setDraftName] = useState("");
   const [draftPrice, setDraftPrice] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [sheetItemId, setSheetItemId] = useState<string | null>(null);
 
   const useSheet = people.length > INLINE_TOGGLE_LIMIT;
   const sheetItem = items.find((i) => i.id === sheetItemId) ?? null;
 
   function confirm() {
-    const cents = parsePriceToCents(draftPrice);
-    if (draftName.trim() === "" || cents === null) return;
-    onAddItem(draftName.trim(), cents);
+    const name = draftName.trim();
+    const cents = parseStrictPriceToCents(draftPrice);
+    if (!name && cents === null) {
+      setError("Enter an item name and a valid price");
+      return;
+    }
+    if (!name) {
+      setError("Enter an item name");
+      return;
+    }
+    if (cents === null) {
+      setError("Enter a valid price, like 9.99");
+      return;
+    }
+    onAddItem(name, cents);
     setDraftName("");
     setDraftPrice("");
+    setError(null);
     setIsAdding(false);
   }
 
@@ -86,29 +103,11 @@ export function EditorList({
             </span>
             <span className="flex items-center gap-2">
             {useSheet ? (
-              <button
-                type="button"
+              <AssignmentSummaryButton
+                people={people}
+                assignedIds={assignedIds}
                 onClick={() => setSheetItemId(item.id)}
-                className="flex cursor-pointer items-center gap-1.5 text-xs text-neutral-600"
-              >
-                <span className="flex">
-                  {assignedIds.slice(0, 2).map((id, i) => {
-                    const person = people.find((p) => p.id === id);
-                    if (!person) return null;
-                    return (
-                      <span
-                        key={id}
-                        className={i > 0 ? "-ml-1" : ""}
-                        style={{ zIndex: 2 - i }}
-                      >
-                        <PersonAvatar name={person.name} position={person.position} size="sm" />
-                      </span>
-                    );
-                  })}
-                </span>
-                <span>{assignedIds.length} assigned</span>
-                <span className="text-neutral-400">›</span>
-              </button>
+              />
             ) : (
               <span className="flex gap-1.5">
                 {people.map((p) => (
@@ -136,35 +135,47 @@ export function EditorList({
       })}
 
       {isAdding ? (
-        <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2 py-1.5">
-          <input
-            autoFocus
-            value={draftName}
-            onChange={(e) => setDraftName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && confirm()}
-            placeholder="Item name"
-            className={`min-w-0 flex-1 ${fieldClass}`}
-          />
-          <input
-            value={draftPrice}
-            onChange={(e) => setDraftPrice(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && confirm()}
-            placeholder="0.00"
-            inputMode="decimal"
-            className={`w-14 flex-none ${fieldClass}`}
-          />
-          <button
-            type="button"
-            onClick={confirm}
-            className="flex-none cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
-          >
-            Add
-          </button>
+        <div>
+          <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2 py-1.5">
+            <input
+              autoFocus
+              value={draftName}
+              onChange={(e) => {
+                setDraftName(e.target.value);
+                setError(null);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && confirm()}
+              placeholder="Item name"
+              className={`min-w-0 flex-1 ${fieldClass}`}
+            />
+            <input
+              value={draftPrice}
+              onChange={(e) => {
+                setDraftPrice(e.target.value);
+                setError(null);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && confirm()}
+              placeholder="0.00"
+              inputMode="decimal"
+              className={`w-14 flex-none ${fieldClass}`}
+            />
+            <button
+              type="button"
+              onClick={confirm}
+              className="flex-none cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
+            >
+              Add
+            </button>
+          </div>
+          {error && <p className="mt-1 px-1 text-xs text-red-600">{error}</p>}
         </div>
       ) : (
         <button
           type="button"
-          onClick={() => setIsAdding(true)}
+          onClick={() => {
+            setIsAdding(true);
+            setError(null);
+          }}
           className="cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2.5 py-1.5 text-left text-sm text-neutral-400"
         >
           + Add item

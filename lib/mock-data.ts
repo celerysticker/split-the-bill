@@ -49,3 +49,19 @@ export function parsePriceToCents(raw: string): number | null {
   if (!Number.isFinite(value) || value < 0) return null;
   return Math.round(value * 100);
 }
+
+const STRICT_PRICE_RE = /^\d+(\.\d{1,2})?$/;
+
+/**
+ * Strict price validation for new-item entry: must be a positive number
+ * with at most two decimal places (no currency symbols, no negative sign,
+ * no more than two decimals). Returns null for anything else, including
+ * empty input or zero.
+ */
+export function parseStrictPriceToCents(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!STRICT_PRICE_RE.test(trimmed)) return null;
+  const value = Number(trimmed);
+  if (value <= 0) return null;
+  return Math.round(value * 100);
+}
