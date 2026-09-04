@@ -27,7 +27,7 @@ export function AssignmentSummaryButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-none shrink-0 items-center justify-start gap-1.5 whitespace-nowrap text-xs text-neutral-600"
+      className="flex flex-none shrink-0 cursor-pointer items-center justify-start gap-1.5 whitespace-nowrap text-xs text-neutral-600"
     >
       {assignedIds.length === 0 ? (
         <span className="flex-none whitespace-nowrap text-neutral-400">None assigned</span>
