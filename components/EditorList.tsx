@@ -156,10 +156,9 @@ export function EditorList({
           <button
             type="button"
             onClick={confirm}
-            aria-label="Save item"
-            className="inline-flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
+            className="flex-none cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
           >
-            ✓
+            Add
           </button>
         </div>
       ) : (

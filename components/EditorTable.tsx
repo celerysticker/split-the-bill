@@ -158,10 +158,9 @@ export function EditorTable({
             <button
               type="button"
               onClick={confirm}
-              aria-label="Add item"
-              className="inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
+              className="cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
             >
-              ✓
+              Add
             </button>
           </td>
         </tr>
