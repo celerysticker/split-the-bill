@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { computeSplitTotals, splitCents } from "@/lib/split-math";
-import { formatCents, type UIItem, type UIPerson } from "@/lib/mock-data";
+import { formatCents, type Currency, type UIItem, type UIPerson } from "@/lib/mock-data";
 
 /**
  * Read-only summary. Desktop shows the full itemized ledger and every
@@ -18,12 +18,14 @@ export function SummaryView({
   items,
   taxCents,
   tipCents,
+  currency,
 }: {
   splitName: string;
   people: UIPerson[];
   items: UIItem[];
   taxCents: number;
   tipCents: number;
+  currency: Currency;
 }) {
   const totals = computeSplitTotals({ people, items, taxCents, tipCents });
   const totalsByPersonId = Object.fromEntries(totals.map((t) => [t.personId, t]));
@@ -51,7 +53,7 @@ export function SummaryView({
               {items.map((item) => (
                 <tr key={item.id} className="border-t border-neutral-200">
                   <td className="py-1.5">{item.name}</td>
-                  <td className="py-1.5 tabular-nums">{formatCents(item.priceCents)}</td>
+                  <td className="py-1.5 tabular-nums">{formatCents(item.priceCents, currency)}</td>
                   <td className="py-1.5 text-neutral-500">
                     {item.assigneeIds
                       .map((id) => people.find((p) => p.id === id)?.name)
@@ -62,12 +64,12 @@ export function SummaryView({
               ))}
               <tr className="border-t border-neutral-200 text-neutral-500">
                 <td className="py-1.5">Tax + tip</td>
-                <td className="py-1.5 tabular-nums">{formatCents(taxCents + tipCents)}</td>
+                <td className="py-1.5 tabular-nums">{formatCents(taxCents + tipCents, currency)}</td>
                 <td />
               </tr>
               <tr className="border-t border-neutral-300 font-medium">
                 <td className="py-1.5">Total</td>
-                <td className="py-1.5 tabular-nums">{formatCents(grandTotal)}</td>
+                <td className="py-1.5 tabular-nums">{formatCents(grandTotal, currency)}</td>
                 <td />
               </tr>
             </tbody>
@@ -84,7 +86,7 @@ export function SummaryView({
                 {p.name}
               </span>
               <span className="font-medium tabular-nums">
-                {formatCents(totalsByPersonId[p.id]?.totalCents ?? 0)}
+                {formatCents(totalsByPersonId[p.id]?.totalCents ?? 0, currency)}
               </span>
             </div>
           ))}
@@ -110,7 +112,7 @@ export function SummaryView({
                 </span>
                 <span className="flex items-center gap-1.5">
                   <span className="font-medium tabular-nums">
-                    {formatCents(total?.totalCents ?? 0)}
+                    {formatCents(total?.totalCents ?? 0, currency)}
                   </span>
                   <span className="text-neutral-400">{isExpanded ? "⌄" : "›"}</span>
                 </span>
@@ -125,14 +127,14 @@ export function SummaryView({
                     return (
                       <div key={item.id} className="flex justify-between">
                         <span>{item.name}</span>
-                        <span className="tabular-nums">{formatCents(share)}</span>
+                        <span className="tabular-nums">{formatCents(share, currency)}</span>
                       </div>
                     );
                   })}
                   <div className="flex justify-between">
                     <span>Tax + tip share</span>
                     <span className="tabular-nums">
-                      {formatCents(total?.taxTipCents ?? 0)}
+                      {formatCents(total?.taxTipCents ?? 0, currency)}
                     </span>
                   </div>
                 </div>
@@ -142,7 +144,7 @@ export function SummaryView({
         })}
         <div className="mt-1 flex justify-between border-t border-neutral-200 pt-2 text-sm font-medium">
           <span>Total</span>
-          <span className="tabular-nums">{formatCents(grandTotal)}</span>
+          <span className="tabular-nums">{formatCents(grandTotal, currency)}</span>
         </div>
       </div>
     </div>

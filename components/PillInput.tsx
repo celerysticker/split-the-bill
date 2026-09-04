@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PersonAvatar } from "@/components/PersonAvatar";
+import { personColor } from "@/lib/person-colors";
 
 export type Pill = { id: string; name: string; position: number };
 
@@ -33,23 +34,26 @@ export function PillInput({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-neutral-300 p-1.5 transition-colors focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400">
-      {pills.map((pill) => (
-        <span
-          key={pill.id}
-          className="flex items-center gap-1.5 rounded-full bg-violet-200 py-1 pl-2.5 pr-1.5 text-xs text-violet-900"
-        >
-          <PersonAvatar name={pill.name} position={pill.position} size="sm" />
-          {pill.name}
-          <button
-            type="button"
-            onClick={() => onRemove(pill.id)}
-            aria-label={`Remove ${pill.name}`}
-            className="cursor-pointer text-violet-700 hover:text-violet-900"
+      {pills.map((pill) => {
+        const color = personColor(pill.position);
+        return (
+          <span
+            key={pill.id}
+            className={`flex items-center gap-1.5 rounded-full ${color.pillBg} ${color.text} py-1 pl-2.5 pr-1.5 text-xs`}
           >
-            ×
-          </button>
-        </span>
-      ))}
+            <PersonAvatar name={pill.name} position={pill.position} size="sm" />
+            {pill.name}
+            <button
+              type="button"
+              onClick={() => onRemove(pill.id)}
+              aria-label={`Remove ${pill.name}`}
+              className={`cursor-pointer ${color.text} hover:opacity-70`}
+            >
+              ×
+            </button>
+          </span>
+        );
+      })}
       <input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

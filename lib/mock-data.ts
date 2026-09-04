@@ -26,18 +26,23 @@ export const initialItems: UIItem[] = [
   { id: "i2", name: "Caesar salad", priceCents: 1200, assigneeIds: ["sam"] },
 ];
 
-export const initialTaxCents = 501;
-export const initialTipCents = 500;
+export const initialTaxCents = 0;
+export const initialTipCents = 0;
 
 let nextId = 1;
 export function localId(prefix: string): string {
   return `${prefix}-${nextId++}`;
 }
 
-export function formatCents(cents: number): string {
+// Visual-only for now — picking a currency changes the symbol shown, not
+// any stored data. Wiring this into the actual split (and the split-math
+// module, which is currency-agnostic today) is a follow-up.
+export type Currency = "USD" | "EUR";
+
+export function formatCents(cents: number, currency: Currency = "USD"): string {
   return (cents / 100).toLocaleString(undefined, {
     style: "currency",
-    currency: "USD",
+    currency,
   });
 }
 
@@ -64,4 +69,15 @@ export function parseStrictPriceToCents(raw: string): number | null {
   const value = Number(trimmed);
   if (value <= 0) return null;
   return Math.round(value * 100);
+}
+
+/**
+ * Same strict format as parseStrictPriceToCents (a number with at most two
+ * decimal places, no currency symbols or negative sign) but allows zero —
+ * unlike an item's price, tax/tip legitimately can be $0.00.
+ */
+export function parseCurrencyToCents(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!STRICT_PRICE_RE.test(trimmed)) return null;
+  return Math.round(Number(trimmed) * 100);
 }

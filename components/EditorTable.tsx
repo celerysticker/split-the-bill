@@ -239,7 +239,7 @@ export function EditorTable({
               <button
                 type="button"
                 onClick={confirm}
-                className="cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
+                className="cursor-pointer rounded-md bg-amber-300 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-400"
               >
                 Add
               </button>
@@ -247,7 +247,7 @@ export function EditorTable({
           </tr>
           {error && (
             <tr>
-              <td colSpan={columnCount} className="px-1 pt-1 text-xs text-red-600">
+              <td colSpan={columnCount} className="px-1 pt-0.5 text-xs text-red-600">
                 {error}
               </td>
             </tr>

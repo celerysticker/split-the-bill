@@ -168,12 +168,12 @@ export function EditorList({
             <button
               type="button"
               onClick={confirm}
-              className="flex-none cursor-pointer rounded-md bg-violet-200 px-2.5 py-1 text-xs font-medium text-violet-900 hover:bg-violet-300"
+              className="flex-none cursor-pointer rounded-md bg-amber-300 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-400"
             >
               Add
             </button>
           </div>
-          {error && <p className="mt-1 px-1 text-xs text-red-600">{error}</p>}
+          {error && <p className="mt-0.5 px-1 text-xs text-red-600">{error}</p>}
         </div>
       ) : (
         <button

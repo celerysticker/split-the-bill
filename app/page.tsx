@@ -12,7 +12,8 @@ import {
   initialTaxCents,
   initialTipCents,
   localId,
-  parsePriceToCents,
+  parseCurrencyToCents,
+  type Currency,
   type UIItem,
   type UIPerson,
 } from "@/lib/mock-data";
@@ -30,6 +31,7 @@ type Screen = "edit" | "summary";
  */
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("edit");
+  const [currency, setCurrency] = useState<Currency>("USD");
   const [splitName, setSplitName] = useState("Luigi's dinner");
   const [people, setPeople] = useState<UIPerson[]>(initialPeople);
   const [items, setItems] = useState<UIItem[]>(initialItems);
@@ -87,12 +89,23 @@ export default function Home() {
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 px-4 py-8">
       {screen === "edit" && (
         <div className="rounded-xl border border-neutral-200 bg-white p-4">
-          <input
-            value={splitName}
-            onChange={(e) => setSplitName(e.target.value)}
-            placeholder="Name this split"
-            className={`mb-3 w-full text-base font-medium ${inlineEditClass}`}
-          />
+          <div className="mb-3 flex items-center gap-2">
+            <input
+              value={splitName}
+              onChange={(e) => setSplitName(e.target.value)}
+              placeholder="Name this split"
+              className={`flex-1 text-base font-medium ${inlineEditClass}`}
+            />
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value as Currency)}
+              aria-label="Currency"
+              className={`text-xs ${fieldClass}`}
+            >
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+          </div>
 
           <div className="mb-3">
             <p className="mb-1.5 text-xs text-neutral-400">Who&apos;s splitting?</p>
@@ -111,10 +124,10 @@ export default function Home() {
               />
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
+              <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
               <button
                 onClick={() => setScreen("summary")}
-                className="w-full cursor-pointer rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
+                className="w-full cursor-pointer rounded-lg bg-amber-300 py-2 text-sm font-medium text-amber-950 hover:bg-amber-400"
               >
                 Share summary
               </button>
@@ -130,10 +143,10 @@ export default function Home() {
               onToggleAssignment={toggleAssignment}
               onRemoveItem={removeItem}
             />
-            <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
+            <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
             <button
               onClick={() => setScreen("summary")}
-              className="w-full cursor-pointer rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
+              className="w-full cursor-pointer rounded-lg bg-amber-300 py-2 text-sm font-medium text-amber-950 hover:bg-amber-400"
             >
               Share summary
             </button>
@@ -158,6 +171,7 @@ export default function Home() {
             items={items}
             taxCents={taxCents}
             tipCents={tipCents}
+            currency={currency}
           />
         </div>
       )}
@@ -171,44 +185,65 @@ function TaxTipCard({
   tipCents,
   setTaxCents,
   setTipCents,
+  currency,
 }: {
   subtotal: number;
   taxCents: number;
   tipCents: number;
   setTaxCents: (cents: number) => void;
   setTipCents: (cents: number) => void;
+  currency: Currency;
 }) {
+  const [taxError, setTaxError] = useState<string | null>(null);
+  const [tipError, setTipError] = useState<string | null>(null);
+
   return (
     <div className="rounded-lg bg-neutral-100 p-3 text-sm">
       <div className="mb-1.5 flex justify-between text-neutral-500">
         <span>Subtotal</span>
-        <span className="tabular-nums">{formatCents(subtotal)}</span>
+        <span className="tabular-nums">{formatCents(subtotal, currency)}</span>
       </div>
-      <div className="mb-1.5 flex items-center justify-between text-neutral-500">
-        <span>Tax</span>
-        <input
-          defaultValue={formatCents(taxCents).replace(/[^0-9.]/g, "")}
-          onBlur={(e) => {
-            const cents = parsePriceToCents(e.target.value);
-            if (cents !== null) setTaxCents(cents);
-          }}
-          className={`w-16 text-right ${fieldClass}`}
-        />
+      <div className="mb-1.5">
+        <div className="flex items-center justify-between text-neutral-500">
+          <span>Tax</span>
+          <input
+            key={`tax-${taxCents}`}
+            defaultValue={taxCents === 0 ? "" : (taxCents / 100).toFixed(2)}
+            placeholder="0.00"
+            onChange={() => setTaxError(null)}
+            onBlur={(e) => {
+              const raw = e.target.value.trim();
+              const cents = raw === "" ? 0 : parseCurrencyToCents(raw);
+              if (cents === null) setTaxError("Enter a valid amount, like 5.00");
+              else setTaxCents(cents);
+            }}
+            className={`w-16 text-right ${fieldClass}`}
+          />
+        </div>
+        {taxError && <p className="mt-1 text-xs text-red-600">{taxError}</p>}
       </div>
-      <div className="mb-1.5 flex items-center justify-between text-neutral-500">
-        <span>Tip</span>
-        <input
-          defaultValue={formatCents(tipCents).replace(/[^0-9.]/g, "")}
-          onBlur={(e) => {
-            const cents = parsePriceToCents(e.target.value);
-            if (cents !== null) setTipCents(cents);
-          }}
-          className={`w-16 text-right ${fieldClass}`}
-        />
+      <div className="mb-1.5">
+        <div className="flex items-center justify-between text-neutral-500">
+          <span>Tip</span>
+          <input
+            key={`tip-${tipCents}`}
+            defaultValue={tipCents === 0 ? "" : (tipCents / 100).toFixed(2)}
+            placeholder="0.00"
+            onChange={() => setTipError(null)}
+            onBlur={(e) => {
+              const raw = e.target.value.trim();
+              const cents = raw === "" ? 0 : parseCurrencyToCents(raw);
+              if (cents === null) setTipError("Enter a valid amount, like 5.00");
+              else setTipCents(cents);
+            }}
+            className={`w-16 text-right ${fieldClass}`}
+          />
+        </div>
+        {tipError && <p className="mt-1 text-xs text-red-600">{tipError}</p>}
       </div>
       <div className="flex justify-between border-t border-neutral-300 pt-1.5 font-medium text-neutral-900">
         <span>Total</span>
-        <span className="tabular-nums">{formatCents(subtotal + taxCents + tipCents)}</span>
+        <span className="tabular-nums">{formatCents(subtotal + taxCents + tipCents, currency)}</span>
       </div>
     </div>
   );
