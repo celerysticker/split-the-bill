@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { EditorList } from "@/components/EditorList";
 import { EditorTable } from "@/components/EditorTable";
-import { PersonAvatar } from "@/components/PersonAvatar";
 import { PillInput } from "@/components/PillInput";
 import { SummaryView } from "@/components/SummaryView";
 import {
@@ -18,14 +17,15 @@ import {
   type UIPerson,
 } from "@/lib/mock-data";
 
-type Screen = "start" | "edit" | "summary";
+type Screen = "edit" | "summary";
 
 /**
- * Client-only interactive demo of all three screens, wired to in-memory
- * state instead of the real database (see the tech spec — Phase 2 swaps
- * this for Server Actions once a Postgres connection exists). The screen
- * switcher below is a dev convenience; production navigation is by route
- * (/, /e/[editToken], /s/[id]), not a tab strip.
+ * Client-only interactive demo of the app, wired to in-memory state instead
+ * of the real database (see the tech spec — Phase 2 swaps this for Server
+ * Actions once a Postgres connection exists). Edit and Summary are the only
+ * two screens — Start is folded into the top of Edit, and navigation
+ * between them is by explicit action (Share summary / Edit), not a tab
+ * strip, matching how the real routes will work.
  */
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("edit");
@@ -34,18 +34,29 @@ export default function Home() {
   const [items, setItems] = useState<UIItem[]>(initialItems);
   const [taxCents, setTaxCents] = useState(initialTaxCents);
   const [tipCents, setTipCents] = useState(initialTipCents);
-  const [organizerName, setOrganizerName] = useState("");
 
   function addPerson(name: string) {
     setPeople((prev) => [...prev, { id: localId("p"), name, position: prev.length }]);
   }
 
   function removePerson(id: string) {
-    setPeople((prev) => prev.filter((p) => p.id !== id));
+    setPeople((prev) =>
+      prev.filter((p) => p.id !== id).map((p, i) => ({ ...p, position: i })),
+    );
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        assigneeIds: item.assigneeIds.filter((pid) => pid !== id),
+      })),
+    );
   }
 
   function addItem(name: string, priceCents: number, assigneeIds: string[] = []) {
     setItems((prev) => [...prev, { id: localId("i"), name, priceCents, assigneeIds }]);
+  }
+
+  function removeItem(itemId: string) {
+    setItems((prev) => prev.filter((item) => item.id !== itemId));
   }
 
   function toggleAssignment(itemId: string, personId: string) {
@@ -64,88 +75,34 @@ export default function Home() {
   }
 
   const subtotal = items.reduce((sum, i) => sum + i.priceCents, 0);
-  const canStartEditing = organizerName.trim() !== "" && people.length >= 1;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 px-4 py-8">
-      <div className="flex gap-1.5 self-center rounded-lg bg-neutral-100 p-1 text-xs">
-        {(["start", "edit", "summary"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setScreen(s)}
-            className={`rounded-md px-3 py-1 capitalize ${
-              screen === s ? "bg-white font-medium shadow-sm" : "text-neutral-500"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
-
-      {screen === "start" && (
-        <div className="mx-auto w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-5">
-          <p className="mb-4 text-center text-base font-medium">Start a new split</p>
-          <p className="mb-1 text-xs text-neutral-400">Split name</p>
+      {screen === "edit" && (
+        <div className="rounded-xl border border-neutral-200 bg-white p-4">
           <input
             value={splitName}
             onChange={(e) => setSplitName(e.target.value)}
-            placeholder="e.g. Luigi's dinner"
-            className="mb-4 w-full rounded border border-neutral-300 px-2 py-1.5 text-sm"
+            placeholder="Name this split"
+            className="mb-3 w-full border-none p-0 text-base font-medium outline-none"
           />
-          <p className="mb-1.5 text-xs text-neutral-400">Who&apos;s splitting?</p>
-          <div className="mb-1.5">
-            <input
-              value={organizerName}
-              onChange={(e) => setOrganizerName(e.target.value)}
-              placeholder="Your name"
-              className="w-full rounded border border-neutral-300 px-2 py-1.5 text-sm"
-            />
-          </div>
-          <div className="mb-4">
-            <PillInput
-              pills={people.map((p) => ({ ...p }))}
-              onAdd={addPerson}
-              onRemove={removePerson}
-            />
-          </div>
-          <button
-            disabled={!canStartEditing}
-            onClick={() => {
-              if (organizerName.trim()) {
-                setPeople((prev) => [
-                  { id: localId("p"), name: organizerName.trim(), position: 0 },
-                  ...prev.map((p, i) => ({ ...p, position: i + 1 })),
-                ]);
-              }
-              setScreen("edit");
-            }}
-            className="w-full rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900 disabled:opacity-40"
-          >
-            Add items
-          </button>
-        </div>
-      )}
 
-      {screen === "edit" && (
-        <div className="rounded-xl border border-neutral-200 bg-white p-4">
-          <p className="mb-3 text-base font-medium">{splitName || "Untitled split"}</p>
+          <div className="mb-3 rounded-lg bg-neutral-100 p-3">
+            <p className="mb-1.5 text-xs text-neutral-400">Who&apos;s splitting?</p>
+            <PillInput pills={people} onAdd={addPerson} onRemove={removePerson} />
+          </div>
 
           <div className="hidden md:flex md:gap-4">
             <div className="flex-[2.1]">
-              <EditorTable people={people} items={items} onAddItem={addItem} onToggleAssignment={toggleAssignment} />
+              <EditorTable
+                people={people}
+                items={items}
+                onAddItem={addItem}
+                onToggleAssignment={toggleAssignment}
+                onRemoveItem={removeItem}
+              />
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <div className="rounded-lg bg-neutral-100 p-3 text-sm">
-                <p className="mb-2 text-xs text-neutral-400">People</p>
-                <div className="flex flex-col gap-1.5">
-                  {people.map((p) => (
-                    <span key={p.id} className="flex items-center gap-2">
-                      <PersonAvatar name={p.name} position={p.position} />
-                      {p.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
               <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
               <button
                 onClick={() => setScreen("summary")}
@@ -157,7 +114,13 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-3 md:hidden">
-            <EditorList people={people} items={items} onAddItem={(n, c) => addItem(n, c)} onToggleAssignment={toggleAssignment} />
+            <EditorList
+              people={people}
+              items={items}
+              onAddItem={(n, c) => addItem(n, c)}
+              onToggleAssignment={toggleAssignment}
+              onRemoveItem={removeItem}
+            />
             <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
             <button
               onClick={() => setScreen("summary")}
@@ -171,6 +134,15 @@ export default function Home() {
 
       {screen === "summary" && (
         <div className="rounded-xl border border-neutral-200 bg-white p-4">
+          <div className="mb-3 flex items-start justify-between">
+            <div className="flex-1" />
+            <button
+              onClick={() => setScreen("edit")}
+              className="rounded-lg border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600"
+            >
+              Edit
+            </button>
+          </div>
           <SummaryView
             splitName={splitName || "Untitled split"}
             people={people}
@@ -214,7 +186,7 @@ function TaxTipCard({
           className="w-16 rounded border border-neutral-300 px-1.5 py-0.5 text-right text-sm"
         />
       </div>
-      <div className="flex items-center justify-between text-neutral-500">
+      <div className="mb-1.5 flex items-center justify-between text-neutral-500">
         <span>Tip</span>
         <input
           defaultValue={formatCents(tipCents).replace(/[^0-9.]/g, "")}
@@ -224,6 +196,10 @@ function TaxTipCard({
           }}
           className="w-16 rounded border border-neutral-300 px-1.5 py-0.5 text-right text-sm"
         />
+      </div>
+      <div className="flex justify-between border-t border-neutral-300 pt-1.5 font-medium text-neutral-900">
+        <span>Total</span>
+        <span className="tabular-nums">{formatCents(subtotal + taxCents + tipCents)}</span>
       </div>
     </div>
   );

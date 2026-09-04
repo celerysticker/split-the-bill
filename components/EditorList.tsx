@@ -22,11 +22,13 @@ export function EditorList({
   items,
   onAddItem,
   onToggleAssignment,
+  onRemoveItem,
 }: {
   people: UIPerson[];
   items: UIItem[];
   onAddItem: (name: string, priceCents: number) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
+  onRemoveItem: (itemId: string) => void;
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const [draftName, setDraftName] = useState("");
@@ -52,11 +54,12 @@ export function EditorList({
         return (
           <div
             key={item.id}
-            className="flex items-center justify-between rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
+            className="flex items-center justify-between gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
           >
             <span>
               {item.name} <span className="text-neutral-400">{formatCents(item.priceCents)}</span>
             </span>
+            <span className="flex items-center gap-2">
             {useSheet ? (
               <button
                 type="button"
@@ -94,6 +97,15 @@ export function EditorList({
                 ))}
               </span>
             )}
+            <button
+              type="button"
+              onClick={() => onRemoveItem(item.id)}
+              aria-label={`Remove ${item.name}`}
+              className="text-neutral-300 hover:text-red-500"
+            >
+              ×
+            </button>
+            </span>
           </div>
         );
       })}

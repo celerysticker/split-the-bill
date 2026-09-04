@@ -16,11 +16,13 @@ export function EditorTable({
   items,
   onAddItem,
   onToggleAssignment,
+  onRemoveItem,
 }: {
   people: UIPerson[];
   items: UIItem[];
   onAddItem: (name: string, priceCents: number, assigneeIds: string[]) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
+  onRemoveItem: (itemId: string) => void;
 }) {
   const [draftName, setDraftName] = useState("");
   const [draftPrice, setDraftPrice] = useState("");
@@ -78,7 +80,16 @@ export function EditorTable({
                 </div>
               </td>
             ))}
-            <td />
+            <td className="text-center">
+              <button
+                type="button"
+                onClick={() => onRemoveItem(item.id)}
+                aria-label={`Remove ${item.name}`}
+                className="text-neutral-300 hover:text-red-500"
+              >
+                ×
+              </button>
+            </td>
           </tr>
         ))}
         <tr className="border-t border-blue-400">
