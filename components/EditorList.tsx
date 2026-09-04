@@ -69,6 +69,14 @@ export function EditorList({
 
   return (
     <div className="flex flex-col gap-1.5">
+      {items.length > 0 && (
+        <div className="grid grid-cols-[1fr_52px_112px_16px] gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400">
+          <span>Item</span>
+          <span>Price</span>
+          <span>Assigned</span>
+          <span />
+        </div>
+      )}
       {items.map((item) => {
         const assignedIds = item.assigneeIds;
         return (
