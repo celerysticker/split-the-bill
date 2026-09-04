@@ -74,53 +74,52 @@ export function EditorList({
         return (
           <div
             key={item.id}
-            className="flex items-center justify-between gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
+            className="grid grid-cols-[1fr_52px_112px_16px] items-center gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
           >
-            <span className="flex min-w-0 items-baseline gap-1">
-              <input
-                key={`${item.id}-name-${item.name}`}
-                defaultValue={item.name}
-                onBlur={(e) => {
-                  const name = e.target.value.trim();
-                  if (name) onUpdateItem(item.id, { name });
-                  else e.target.value = item.name;
-                }}
-                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                className={`min-w-0 flex-1 ${inlineEditClass}`}
-              />
-              <input
-                key={`${item.id}-price-${item.priceCents}`}
-                defaultValue={(item.priceCents / 100).toFixed(2)}
-                onBlur={(e) => {
-                  const cents = parsePriceToCents(e.target.value);
-                  if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
-                  else e.target.value = (item.priceCents / 100).toFixed(2);
-                }}
-                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                inputMode="decimal"
-                className={`w-12 flex-none text-neutral-400 tabular-nums ${inlineEditClass}`}
-              />
-            </span>
-            <span className="flex items-center gap-2">
-            {useSheet ? (
-              <AssignmentSummaryButton
-                people={people}
-                assignedIds={assignedIds}
-                onClick={() => setSheetItemId(item.id)}
-              />
-            ) : (
-              <span className="flex gap-1.5">
-                {people.map((p) => (
-                  <AssignmentToggle
-                    key={p.id}
-                    position={p.position}
-                    name={p.name}
-                    assigned={assignedIds.includes(p.id)}
-                    onToggle={() => onToggleAssignment(item.id, p.id)}
-                  />
-                ))}
-              </span>
-            )}
+            <input
+              key={`${item.id}-name-${item.name}`}
+              defaultValue={item.name}
+              onBlur={(e) => {
+                const name = e.target.value.trim();
+                if (name) onUpdateItem(item.id, { name });
+                else e.target.value = item.name;
+              }}
+              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+              className={`min-w-0 ${inlineEditClass}`}
+            />
+            <input
+              key={`${item.id}-price-${item.priceCents}`}
+              defaultValue={(item.priceCents / 100).toFixed(2)}
+              onBlur={(e) => {
+                const cents = parsePriceToCents(e.target.value);
+                if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
+                else e.target.value = (item.priceCents / 100).toFixed(2);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+              inputMode="decimal"
+              className={`w-full text-left text-neutral-400 tabular-nums ${inlineEditClass}`}
+            />
+            <div className="flex min-w-0 items-center">
+              {useSheet ? (
+                <AssignmentSummaryButton
+                  people={people}
+                  assignedIds={assignedIds}
+                  onClick={() => setSheetItemId(item.id)}
+                />
+              ) : (
+                <span className="flex gap-1.5">
+                  {people.map((p) => (
+                    <AssignmentToggle
+                      key={p.id}
+                      position={p.position}
+                      name={p.name}
+                      assigned={assignedIds.includes(p.id)}
+                      onToggle={() => onToggleAssignment(item.id, p.id)}
+                    />
+                  ))}
+                </span>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => onRemoveItem(item.id)}
@@ -129,7 +128,6 @@ export function EditorList({
             >
               ×
             </button>
-            </span>
           </div>
         );
       })}

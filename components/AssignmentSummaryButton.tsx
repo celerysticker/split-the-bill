@@ -27,21 +27,27 @@ export function AssignmentSummaryButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex cursor-pointer items-center gap-1.5 text-xs text-neutral-600"
+      className="flex flex-none shrink-0 items-center justify-start gap-1.5 whitespace-nowrap text-xs text-neutral-600"
     >
-      <span className="flex">
-        {shown.map((id, i) => {
-          const person = people.find((p) => p.id === id);
-          if (!person) return null;
-          return (
-            <span key={id} className={i > 0 ? "-ml-1" : ""} style={{ zIndex: shown.length - i }}>
-              <PersonAvatar name={person.name} position={person.position} size="sm" />
-            </span>
-          );
-        })}
-      </span>
-      {more > 0 && <span>+{more} more</span>}
-      <span className="text-neutral-400">›</span>
+      {assignedIds.length === 0 ? (
+        <span className="flex-none whitespace-nowrap text-neutral-400">None assigned</span>
+      ) : (
+        <>
+          <span className="flex flex-none">
+            {shown.map((id, i) => {
+              const person = people.find((p) => p.id === id);
+              if (!person) return null;
+              return (
+                <span key={id} className={i > 0 ? "-ml-1" : ""} style={{ zIndex: shown.length - i }}>
+                  <PersonAvatar name={person.name} position={person.position} size="sm" />
+                </span>
+              );
+            })}
+          </span>
+          {more > 0 && <span className="flex-none whitespace-nowrap">+{more} more</span>}
+        </>
+      )}
+      <span className="flex-none text-neutral-400">›</span>
     </button>
   );
 }
