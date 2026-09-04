@@ -16,6 +16,7 @@ import {
   type UIItem,
   type UIPerson,
 } from "@/lib/mock-data";
+import { fieldClass, inlineEditClass } from "@/lib/ui";
 
 type Screen = "edit" | "summary";
 
@@ -59,6 +60,12 @@ export default function Home() {
     setItems((prev) => prev.filter((item) => item.id !== itemId));
   }
 
+  function updateItem(itemId: string, updates: { name?: string; priceCents?: number }) {
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, ...updates } : item)),
+    );
+  }
+
   function toggleAssignment(itemId: string, personId: string) {
     setItems((prev) =>
       prev.map((item) =>
@@ -84,10 +91,10 @@ export default function Home() {
             value={splitName}
             onChange={(e) => setSplitName(e.target.value)}
             placeholder="Name this split"
-            className="mb-3 w-full border-none p-0 text-base font-medium outline-none"
+            className={`mb-3 w-full text-base font-medium ${inlineEditClass}`}
           />
 
-          <div className="mb-3 rounded-lg bg-neutral-100 p-3">
+          <div className="mb-3">
             <p className="mb-1.5 text-xs text-neutral-400">Who&apos;s splitting?</p>
             <PillInput pills={people} onAdd={addPerson} onRemove={removePerson} />
           </div>
@@ -98,6 +105,7 @@ export default function Home() {
                 people={people}
                 items={items}
                 onAddItem={addItem}
+                onUpdateItem={updateItem}
                 onToggleAssignment={toggleAssignment}
                 onRemoveItem={removeItem}
               />
@@ -106,7 +114,7 @@ export default function Home() {
               <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
               <button
                 onClick={() => setScreen("summary")}
-                className="w-full rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
+                className="w-full cursor-pointer rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
               >
                 Share summary
               </button>
@@ -118,13 +126,14 @@ export default function Home() {
               people={people}
               items={items}
               onAddItem={(n, c) => addItem(n, c)}
+              onUpdateItem={updateItem}
               onToggleAssignment={toggleAssignment}
               onRemoveItem={removeItem}
             />
             <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} />
             <button
               onClick={() => setScreen("summary")}
-              className="w-full rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
+              className="w-full cursor-pointer rounded-lg bg-violet-200 py-2 text-sm font-medium text-violet-900"
             >
               Share summary
             </button>
@@ -138,7 +147,7 @@ export default function Home() {
             <div className="flex-1" />
             <button
               onClick={() => setScreen("edit")}
-              className="rounded-lg border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600"
+              className="cursor-pointer rounded-lg border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600"
             >
               Edit
             </button>
@@ -183,7 +192,7 @@ function TaxTipCard({
             const cents = parsePriceToCents(e.target.value);
             if (cents !== null) setTaxCents(cents);
           }}
-          className="w-16 rounded border border-neutral-300 px-1.5 py-0.5 text-right text-sm"
+          className={`w-16 text-right ${fieldClass}`}
         />
       </div>
       <div className="mb-1.5 flex items-center justify-between text-neutral-500">
@@ -194,7 +203,7 @@ function TaxTipCard({
             const cents = parsePriceToCents(e.target.value);
             if (cents !== null) setTipCents(cents);
           }}
-          className="w-16 rounded border border-neutral-300 px-1.5 py-0.5 text-right text-sm"
+          className={`w-16 text-right ${fieldClass}`}
         />
       </div>
       <div className="flex justify-between border-t border-neutral-300 pt-1.5 font-medium text-neutral-900">

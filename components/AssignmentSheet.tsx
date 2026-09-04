@@ -44,11 +44,12 @@ export function AssignmentSheet({
       className="w-72 rounded-xl border border-neutral-200 bg-white p-4 backdrop:bg-black/40"
     >
       <p className="mb-3 text-xs text-neutral-500">Assign — {itemName}</p>
-      <label className="mb-1.5 flex items-center gap-2 rounded-lg bg-neutral-100 px-2 py-1.5 text-sm font-medium">
+      <label className="mb-1.5 flex cursor-pointer items-center gap-2 rounded-lg bg-neutral-100 px-2 py-1.5 text-sm font-medium">
         <input
           type="checkbox"
           checked={allSelected}
           onChange={(e) => onSelectAll(e.target.checked)}
+          className="cursor-pointer"
         />
         Select all
       </label>
@@ -56,12 +57,13 @@ export function AssignmentSheet({
         {people.map((p) => (
           <label
             key={p.id}
-            className="flex items-center gap-2 rounded-lg bg-neutral-100 px-2 py-1.5 text-sm"
+            className="flex cursor-pointer items-center gap-2 rounded-lg bg-neutral-100 px-2 py-1.5 text-sm"
           >
             <input
               type="checkbox"
               checked={assignedIds.includes(p.id)}
               onChange={() => onToggle(p.id)}
+              className="cursor-pointer"
             />
             <PersonAvatar name={p.name} position={p.position} size="sm" />
             {p.name}
@@ -71,7 +73,7 @@ export function AssignmentSheet({
       <button
         type="button"
         onClick={onClose}
-        className="mt-3 w-full rounded-lg border border-neutral-300 py-1.5 text-sm font-medium"
+        className="mt-3 w-full cursor-pointer rounded-lg border border-neutral-300 py-1.5 text-sm font-medium"
       >
         Done
       </button>

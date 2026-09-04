@@ -4,7 +4,8 @@ import { useState } from "react";
 import { AssignmentSheet } from "@/components/AssignmentSheet";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
 import { PersonAvatar } from "@/components/PersonAvatar";
-import { formatCents, parsePriceToCents, type UIItem, type UIPerson } from "@/lib/mock-data";
+import { parsePriceToCents, type UIItem, type UIPerson } from "@/lib/mock-data";
+import { fieldClass, inlineEditClass } from "@/lib/ui";
 
 const INLINE_TOGGLE_LIMIT = 4;
 
@@ -21,12 +22,14 @@ export function EditorList({
   people,
   items,
   onAddItem,
+  onUpdateItem,
   onToggleAssignment,
   onRemoveItem,
 }: {
   people: UIPerson[];
   items: UIItem[];
   onAddItem: (name: string, priceCents: number) => void;
+  onUpdateItem: (itemId: string, updates: { name?: string; priceCents?: number }) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
   onRemoveItem: (itemId: string) => void;
 }) {
@@ -56,15 +59,37 @@ export function EditorList({
             key={item.id}
             className="flex items-center justify-between gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
           >
-            <span>
-              {item.name} <span className="text-neutral-400">{formatCents(item.priceCents)}</span>
+            <span className="flex min-w-0 items-baseline gap-1">
+              <input
+                key={`${item.id}-name-${item.name}`}
+                defaultValue={item.name}
+                onBlur={(e) => {
+                  const name = e.target.value.trim();
+                  if (name) onUpdateItem(item.id, { name });
+                  else e.target.value = item.name;
+                }}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                className={`min-w-0 flex-1 ${inlineEditClass}`}
+              />
+              <input
+                key={`${item.id}-price-${item.priceCents}`}
+                defaultValue={(item.priceCents / 100).toFixed(2)}
+                onBlur={(e) => {
+                  const cents = parsePriceToCents(e.target.value);
+                  if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
+                  else e.target.value = (item.priceCents / 100).toFixed(2);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                inputMode="decimal"
+                className={`w-12 flex-none text-neutral-400 tabular-nums ${inlineEditClass}`}
+              />
             </span>
             <span className="flex items-center gap-2">
             {useSheet ? (
               <button
                 type="button"
                 onClick={() => setSheetItemId(item.id)}
-                className="flex items-center gap-1.5 text-xs text-neutral-600"
+                className="flex cursor-pointer items-center gap-1.5 text-xs text-neutral-600"
               >
                 <span className="flex">
                   {assignedIds.slice(0, 2).map((id, i) => {
@@ -101,7 +126,7 @@ export function EditorList({
               type="button"
               onClick={() => onRemoveItem(item.id)}
               aria-label={`Remove ${item.name}`}
-              className="text-neutral-300 hover:text-red-500"
+              className="cursor-pointer text-neutral-300 hover:text-red-500"
             >
               ×
             </button>
@@ -111,14 +136,14 @@ export function EditorList({
       })}
 
       {isAdding ? (
-        <div className="flex items-center gap-1.5 rounded-lg border border-blue-400 px-2 py-1.5">
+        <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2 py-1.5">
           <input
             autoFocus
             value={draftName}
             onChange={(e) => setDraftName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && confirm()}
             placeholder="Item name"
-            className="min-w-0 flex-1 rounded border border-blue-400 px-2 py-1 text-sm outline-none"
+            className={`min-w-0 flex-1 ${fieldClass}`}
           />
           <input
             value={draftPrice}
@@ -126,13 +151,13 @@ export function EditorList({
             onKeyDown={(e) => e.key === "Enter" && confirm()}
             placeholder="0.00"
             inputMode="decimal"
-            className="w-14 flex-none rounded border border-neutral-300 px-2 py-1 text-sm outline-none"
+            className={`w-14 flex-none ${fieldClass}`}
           />
           <button
             type="button"
             onClick={confirm}
             aria-label="Save item"
-            className="inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
+            className="inline-flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
           >
             ✓
           </button>
@@ -141,7 +166,7 @@ export function EditorList({
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="rounded-lg border border-dashed border-neutral-300 px-2.5 py-1.5 text-left text-sm text-neutral-400"
+          className="cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2.5 py-1.5 text-left text-sm text-neutral-400"
         >
           + Add item
         </button>

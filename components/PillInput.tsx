@@ -32,7 +32,7 @@ export function PillInput({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-neutral-300 p-1.5">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-neutral-300 p-1.5 transition-colors focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400">
       {pills.map((pill) => (
         <span
           key={pill.id}
@@ -44,7 +44,7 @@ export function PillInput({
             type="button"
             onClick={() => onRemove(pill.id)}
             aria-label={`Remove ${pill.name}`}
-            className="text-violet-700 hover:text-violet-900"
+            className="cursor-pointer text-violet-700 hover:text-violet-900"
           >
             ×
           </button>

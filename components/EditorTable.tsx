@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
-import { formatCents, parsePriceToCents, type UIItem, type UIPerson } from "@/lib/mock-data";
+import { parsePriceToCents, type UIItem, type UIPerson } from "@/lib/mock-data";
+import { fieldClass, inlineEditClass } from "@/lib/ui";
 
 /**
  * Desktop editing — a real table with one column per person. Adding an item
@@ -11,16 +12,19 @@ import { formatCents, parsePriceToCents, type UIItem, type UIPerson } from "@/li
  * the confirm button → the next draft row's Name, so no manual tabIndex
  * wiring is needed.
  */
+
 export function EditorTable({
   people,
   items,
   onAddItem,
+  onUpdateItem,
   onToggleAssignment,
   onRemoveItem,
 }: {
   people: UIPerson[];
   items: UIItem[];
   onAddItem: (name: string, priceCents: number, assigneeIds: string[]) => void;
+  onUpdateItem: (itemId: string, updates: { name?: string; priceCents?: number }) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
   onRemoveItem: (itemId: string) => void;
 }) {
@@ -66,8 +70,33 @@ export function EditorTable({
       <tbody>
         {items.map((item) => (
           <tr key={item.id} className="border-t border-neutral-200">
-            <td className="py-2 pr-2">{item.name}</td>
-            <td className="py-2 pr-2 tabular-nums">{formatCents(item.priceCents)}</td>
+            <td className="py-2 pr-2">
+              <input
+                key={`${item.id}-name-${item.name}`}
+                defaultValue={item.name}
+                onBlur={(e) => {
+                  const name = e.target.value.trim();
+                  if (name) onUpdateItem(item.id, { name });
+                  else e.target.value = item.name;
+                }}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                className={`w-full ${inlineEditClass}`}
+              />
+            </td>
+            <td className="py-2 pr-2 tabular-nums">
+              <input
+                key={`${item.id}-price-${item.priceCents}`}
+                defaultValue={(item.priceCents / 100).toFixed(2)}
+                onBlur={(e) => {
+                  const cents = parsePriceToCents(e.target.value);
+                  if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
+                  else e.target.value = (item.priceCents / 100).toFixed(2);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                inputMode="decimal"
+                className={`w-16 tabular-nums ${inlineEditClass}`}
+              />
+            </td>
             {people.map((p) => (
               <td key={p.id} className="text-center">
                 <div className="flex justify-center">
@@ -85,14 +114,14 @@ export function EditorTable({
                 type="button"
                 onClick={() => onRemoveItem(item.id)}
                 aria-label={`Remove ${item.name}`}
-                className="text-neutral-300 hover:text-red-500"
+                className="cursor-pointer text-neutral-300 hover:text-red-500"
               >
                 ×
               </button>
             </td>
           </tr>
         ))}
-        <tr className="border-t border-blue-400">
+        <tr className="border-t border-neutral-300">
           <td className="py-2 pr-2">
             <input
               ref={nameRef}
@@ -100,7 +129,7 @@ export function EditorTable({
               onChange={(e) => setDraftName(e.target.value)}
               onKeyDown={onKeyDown}
               placeholder="Item name"
-              className="w-full rounded border border-blue-400 px-2 py-1 text-sm outline-none"
+              className={`w-full ${fieldClass}`}
             />
           </td>
           <td className="py-2 pr-2">
@@ -110,7 +139,7 @@ export function EditorTable({
               onKeyDown={onKeyDown}
               placeholder="0.00"
               inputMode="decimal"
-              className="w-16 rounded border border-neutral-300 px-2 py-1 text-sm outline-none"
+              className={`w-16 ${fieldClass}`}
             />
           </td>
           {people.map((p) => (
@@ -130,7 +159,7 @@ export function EditorTable({
               type="button"
               onClick={confirm}
               aria-label="Add item"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
+              className="inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-green-200 text-xs text-green-900"
             >
               ✓
             </button>

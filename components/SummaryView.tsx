@@ -102,7 +102,7 @@ export function SummaryView({
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : p.id)}
-                className="flex w-full items-center justify-between"
+                className="flex w-full cursor-pointer items-center justify-between"
               >
                 <span className="flex items-center gap-2">
                   <PersonAvatar name={p.name} position={p.position} />
