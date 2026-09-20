@@ -169,7 +169,7 @@ export function EditorList({
             <button
               type="button"
               onClick={confirm}
-              className="flex-none cursor-pointer rounded-md bg-amber-200 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-300"
+              className="flex-none cursor-pointer rounded-md bg-neutral-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-neutral-700"
             >
               Add
             </button>

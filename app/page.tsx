@@ -32,7 +32,7 @@ type Screen = "edit" | "summary";
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("edit");
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [splitName, setSplitName] = useState("Luigi's dinner");
+  const [splitName, setSplitName] = useState("");
   const [people, setPeople] = useState<UIPerson[]>(initialPeople);
   const [items, setItems] = useState<UIItem[]>(initialItems);
   const [taxCents, setTaxCents] = useState(initialTaxCents);
@@ -127,7 +127,7 @@ export default function Home() {
               <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
               <button
                 onClick={() => setScreen("summary")}
-                className="w-full cursor-pointer rounded-lg bg-amber-200 py-2 text-sm font-medium text-amber-950 hover:bg-amber-300"
+                className="w-full cursor-pointer rounded-lg bg-neutral-600 py-2 text-sm font-medium text-white hover:bg-neutral-700"
               >
                 Share summary
               </button>
@@ -146,7 +146,7 @@ export default function Home() {
             <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
             <button
               onClick={() => setScreen("summary")}
-              className="w-full cursor-pointer rounded-lg bg-amber-200 py-2 text-sm font-medium text-amber-950 hover:bg-amber-300"
+              className="w-full cursor-pointer rounded-lg bg-neutral-600 py-2 text-sm font-medium text-white hover:bg-neutral-700"
             >
               Share summary
             </button>

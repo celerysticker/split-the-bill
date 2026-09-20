@@ -15,16 +15,10 @@ export type UIItem = {
   assigneeIds: string[];
 };
 
-export const initialPeople: UIPerson[] = [
-  { id: "nina", name: "Nina", position: 0 },
-  { id: "alex", name: "Alex", position: 1 },
-  { id: "sam", name: "Sam", position: 2 },
-];
+// The app starts blank: no split name, no people, no items.
+export const initialPeople: UIPerson[] = [];
 
-export const initialItems: UIItem[] = [
-  { id: "i1", name: "Margherita", priceCents: 1800, assigneeIds: ["nina", "alex"] },
-  { id: "i2", name: "Caesar salad", priceCents: 1200, assigneeIds: ["sam"] },
-];
+export const initialItems: UIItem[] = [];
 
 export const initialTaxCents = 0;
 export const initialTipCents = 0;
