@@ -58,23 +58,12 @@ export function parsePriceToCents(raw: string): number | null {
 const STRICT_PRICE_RE = /^\d+(\.\d{1,2})?$/;
 
 /**
- * Strict price validation for new-item entry: must be a positive number
- * with at most two decimal places (no currency symbols, no negative sign,
- * no more than two decimals). Returns null for anything else, including
- * empty input or zero.
- */
-export function parseStrictPriceToCents(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!STRICT_PRICE_RE.test(trimmed)) return null;
-  const value = Number(trimmed);
-  if (value <= 0) return null;
-  return Math.round(value * 100);
-}
-
-/**
- * Same strict format as parseStrictPriceToCents (a number with at most two
- * decimal places, no currency symbols or negative sign) but allows zero —
- * unlike an item's price, tax/tip legitimately can be $0.00.
+ * Strict price validation: a non-negative number with at most two decimal
+ * places (no currency symbols, no negative sign, no more than two
+ * decimals). Returns null for anything else. Empty input isn't handled
+ * here — callers treat an empty field as $0.00 themselves, same as a
+ * price of "0" or "0.00" (an item can legitimately be free, e.g. a round
+ * someone else picked up).
  */
 export function parseCurrencyToCents(raw: string): number | null {
   const trimmed = raw.trim();

@@ -127,7 +127,7 @@ export default function Home() {
               <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
               <button
                 onClick={() => setScreen("summary")}
-                className="w-full cursor-pointer rounded-lg bg-amber-300 py-2 text-sm font-medium text-amber-950 hover:bg-amber-400"
+                className="w-full cursor-pointer rounded-lg bg-amber-200 py-2 text-sm font-medium text-amber-950 hover:bg-amber-300"
               >
                 Share summary
               </button>
@@ -146,7 +146,7 @@ export default function Home() {
             <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
             <button
               onClick={() => setScreen("summary")}
-              className="w-full cursor-pointer rounded-lg bg-amber-300 py-2 text-sm font-medium text-amber-950 hover:bg-amber-400"
+              className="w-full cursor-pointer rounded-lg bg-amber-200 py-2 text-sm font-medium text-amber-950 hover:bg-amber-300"
             >
               Share summary
             </button>

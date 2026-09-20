@@ -5,8 +5,8 @@ import { AssignmentSheet } from "@/components/AssignmentSheet";
 import { AssignmentSummaryButton } from "@/components/AssignmentSummaryButton";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
 import {
+  parseCurrencyToCents,
   parsePriceToCents,
-  parseStrictPriceToCents,
   type UIItem,
   type UIPerson,
 } from "@/lib/mock-data";
@@ -60,7 +60,8 @@ export function EditorTable({
 
   function confirm() {
     const name = draftName.trim();
-    const cents = parseStrictPriceToCents(draftPrice);
+    const rawPrice = draftPrice.trim();
+    const cents = rawPrice === "" ? 0 : parseCurrencyToCents(rawPrice);
     if (!name && cents === null) {
       setError("Enter an item name and a valid price");
       return;
@@ -187,7 +188,7 @@ export function EditorTable({
             </tr>
           ))}
           <tr className="border-t border-neutral-300">
-            <td className="py-2 pr-2">
+            <td className={error ? "pt-2 pb-1 pr-2" : "py-2 pr-2"}>
               <input
                 ref={nameRef}
                 value={draftName}
@@ -200,7 +201,7 @@ export function EditorTable({
                 className={`w-full ${fieldClass}`}
               />
             </td>
-            <td className="py-2 pr-2">
+            <td className={error ? "pt-2 pb-1 pr-2" : "py-2 pr-2"}>
               <input
                 value={draftPrice}
                 onChange={(e) => {
@@ -239,7 +240,7 @@ export function EditorTable({
               <button
                 type="button"
                 onClick={confirm}
-                className="cursor-pointer rounded-md bg-amber-300 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-400"
+                className="cursor-pointer rounded-md bg-amber-200 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-300"
               >
                 Add
               </button>
@@ -247,7 +248,7 @@ export function EditorTable({
           </tr>
           {error && (
             <tr>
-              <td colSpan={columnCount} className="px-1 pt-0.5 text-xs text-red-600">
+              <td colSpan={columnCount} className="px-1 text-xs text-red-600">
                 {error}
               </td>
             </tr>

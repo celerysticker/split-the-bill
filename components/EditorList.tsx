@@ -5,8 +5,8 @@ import { AssignmentSheet } from "@/components/AssignmentSheet";
 import { AssignmentSummaryButton } from "@/components/AssignmentSummaryButton";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
 import {
+  parseCurrencyToCents,
   parsePriceToCents,
-  parseStrictPriceToCents,
   type UIItem,
   type UIPerson,
 } from "@/lib/mock-data";
@@ -47,7 +47,8 @@ export function EditorList({
 
   function confirm() {
     const name = draftName.trim();
-    const cents = parseStrictPriceToCents(draftPrice);
+    const rawPrice = draftPrice.trim();
+    const cents = rawPrice === "" ? 0 : parseCurrencyToCents(rawPrice);
     if (!name && cents === null) {
       setError("Enter an item name and a valid price");
       return;
@@ -142,7 +143,7 @@ export function EditorList({
 
       {isAdding ? (
         <div>
-          <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2 py-1.5">
+          <div className={`flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2 ${error ? "pt-1.5 pb-1" : "py-1.5"}`}>
             <input
               autoFocus
               value={draftName}
@@ -168,12 +169,12 @@ export function EditorList({
             <button
               type="button"
               onClick={confirm}
-              className="flex-none cursor-pointer rounded-md bg-amber-300 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-400"
+              className="flex-none cursor-pointer rounded-md bg-amber-200 px-2.5 py-1 text-xs font-medium text-amber-950 hover:bg-amber-300"
             >
               Add
             </button>
           </div>
-          {error && <p className="mt-0.5 px-1 text-xs text-red-600">{error}</p>}
+          {error && <p className="px-1 text-xs text-red-600">{error}</p>}
         </div>
       ) : (
         <button
