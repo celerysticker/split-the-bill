@@ -4,6 +4,7 @@ import { useState } from "react";
 import { EditorList } from "@/components/EditorList";
 import { EditorTable } from "@/components/EditorTable";
 import { PillInput } from "@/components/PillInput";
+import { SplitTheBillTitle } from "@/components/SplitTheBillTitle";
 import { SummaryView } from "@/components/SummaryView";
 import {
   formatCents,
@@ -22,12 +23,10 @@ import { fieldClass, inlineEditClass } from "@/lib/ui";
 type Screen = "edit" | "summary";
 
 /**
- * Client-only interactive demo of the app, wired to in-memory state instead
- * of the real database (see the tech spec — Phase 2 swaps this for Server
- * Actions once a Postgres connection exists). Edit and Summary are the only
- * two screens — Start is folded into the top of Edit, and navigation
- * between them is by explicit action (Share summary / Edit), not a tab
- * strip, matching how the real routes will work.
+ * The whole app: all state lives in memory in this component, with no
+ * backend. Edit and Summary are the only two screens — the people list is
+ * part of Edit, and you move between them with explicit actions (Share
+ * summary / Edit) rather than a tab strip.
  */
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("edit");
@@ -87,6 +86,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 px-4 py-8">
+      <SplitTheBillTitle className="h-9 w-auto self-center text-neutral-900" />
       {screen === "edit" && (
         <div className="rounded-xl border border-neutral-200 bg-white p-4">
           <div className="mb-3 flex items-center gap-2">

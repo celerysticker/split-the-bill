@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Itemizer",
-  description: "Split an itemized bill fairly.",
+  title: "split the bill",
+  description: "collect your itemized debts",
 };
 
 export default function RootLayout({

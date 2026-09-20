@@ -1,6 +1,5 @@
-// Client-only fixture data for the interactive demo in app/page.tsx, until
-// a real database is connected (see the tech spec's Phase 2). Shaped like
-// the Prisma models but flat, since there's no DB round-trip here.
+// Types, initial state, and formatting/parsing helpers for the in-memory
+// state in app/page.tsx.
 
 export type UIPerson = {
   id: string;
