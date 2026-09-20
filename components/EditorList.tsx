@@ -4,12 +4,8 @@ import { useState } from "react";
 import { AssignmentSheet } from "@/components/AssignmentSheet";
 import { AssignmentSummaryButton } from "@/components/AssignmentSummaryButton";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
-import {
-  parseCurrencyToCents,
-  parsePriceToCents,
-  type UIItem,
-  type UIPerson,
-} from "@/lib/mock-data";
+import { ItemPriceInput, PriceInput } from "@/components/PriceInput";
+import { parsePriceInput, type Currency, type UIItem, type UIPerson } from "@/lib/mock-data";
 import { INLINE_TOGGLE_LIMIT, fieldClass, inlineEditClass } from "@/lib/ui";
 
 /**
@@ -28,6 +24,7 @@ export function EditorList({
   onUpdateItem,
   onToggleAssignment,
   onRemoveItem,
+  currency,
 }: {
   people: UIPerson[];
   items: UIItem[];
@@ -35,6 +32,7 @@ export function EditorList({
   onUpdateItem: (itemId: string, updates: { name?: string; priceCents?: number }) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
   onRemoveItem: (itemId: string) => void;
+  currency: Currency;
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const [draftName, setDraftName] = useState("");
@@ -48,7 +46,7 @@ export function EditorList({
   function confirm() {
     const name = draftName.trim();
     const rawPrice = draftPrice.trim();
-    const cents = rawPrice === "" ? 0 : parseCurrencyToCents(rawPrice);
+    const cents = parsePriceInput(rawPrice);
     if (!name && cents === null) {
       setError("Enter an item name and a valid price");
       return;
@@ -71,7 +69,7 @@ export function EditorList({
   return (
     <div className="flex flex-col gap-1.5">
       {items.length > 0 && (
-        <div className="grid grid-cols-[1fr_52px_112px_16px] gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400">
+        <div className="grid grid-cols-[1fr_76px_104px_16px] gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400">
           <span>Item</span>
           <span>Price</span>
           <span>Assigned</span>
@@ -83,7 +81,7 @@ export function EditorList({
         return (
           <div
             key={item.id}
-            className="grid grid-cols-[1fr_52px_112px_16px] items-center gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
+            className="grid grid-cols-[1fr_76px_104px_16px] items-center gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
           >
             <input
               key={`${item.id}-name-${item.name}`}
@@ -96,16 +94,11 @@ export function EditorList({
               onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
               className={`min-w-0 ${inlineEditClass}`}
             />
-            <input
+            <ItemPriceInput
               key={`${item.id}-price-${item.priceCents}`}
-              defaultValue={(item.priceCents / 100).toFixed(2)}
-              onBlur={(e) => {
-                const cents = parsePriceToCents(e.target.value);
-                if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
-                else e.target.value = (item.priceCents / 100).toFixed(2);
-              }}
-              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-              inputMode="decimal"
+              cents={item.priceCents}
+              currency={currency}
+              onCommit={(priceCents) => onUpdateItem(item.id, { priceCents })}
               className={`w-full text-left text-neutral-400 tabular-nums ${inlineEditClass}`}
             />
             <div className="flex min-w-0 items-center">
@@ -155,16 +148,16 @@ export function EditorList({
               placeholder="Item name"
               className={`min-w-0 flex-1 ${fieldClass}`}
             />
-            <input
+            <PriceInput
               value={draftPrice}
-              onChange={(e) => {
-                setDraftPrice(e.target.value);
+              onChange={(raw) => {
+                setDraftPrice(raw);
                 setError(null);
               }}
               onKeyDown={(e) => e.key === "Enter" && confirm()}
+              currency={currency}
               placeholder="0.00"
-              inputMode="decimal"
-              className={`w-14 flex-none ${fieldClass}`}
+              className={`w-20 flex-none ${fieldClass}`}
             />
             <button
               type="button"

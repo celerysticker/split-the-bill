@@ -4,6 +4,7 @@ import { useState } from "react";
 import { EditorList } from "@/components/EditorList";
 import { EditorTable } from "@/components/EditorTable";
 import { PillInput } from "@/components/PillInput";
+import { PriceInput } from "@/components/PriceInput";
 import { SplitTheBillTitle } from "@/components/SplitTheBillTitle";
 import { SummaryView } from "@/components/SummaryView";
 import {
@@ -13,7 +14,7 @@ import {
   initialTaxCents,
   initialTipCents,
   localId,
-  parseCurrencyToCents,
+  parsePriceInput,
   type Currency,
   type UIItem,
   type UIPerson,
@@ -121,6 +122,7 @@ export default function Home() {
                 onUpdateItem={updateItem}
                 onToggleAssignment={toggleAssignment}
                 onRemoveItem={removeItem}
+                currency={currency}
               />
             </div>
             <div className="flex flex-1 flex-col gap-2">
@@ -142,6 +144,7 @@ export default function Home() {
               onUpdateItem={updateItem}
               onToggleAssignment={toggleAssignment}
               onRemoveItem={removeItem}
+              currency={currency}
             />
             <TaxTipCard subtotal={subtotal} taxCents={taxCents} tipCents={tipCents} setTaxCents={setTaxCents} setTipCents={setTipCents} currency={currency} />
             <button
@@ -156,17 +159,18 @@ export default function Home() {
 
       {screen === "summary" && (
         <div className="rounded-xl border border-neutral-200 bg-white p-4">
-          <div className="mb-3 flex items-start justify-between">
-            <div className="flex-1" />
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="min-w-0 break-words text-xl font-medium">
+              {splitName || "Untitled split"}
+            </h2>
             <button
               onClick={() => setScreen("edit")}
-              className="cursor-pointer rounded-lg border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600"
+              className="flex-none cursor-pointer rounded-lg border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600"
             >
               Edit
             </button>
           </div>
           <SummaryView
-            splitName={splitName || "Untitled split"}
             people={people}
             items={items}
             taxCents={taxCents}
@@ -194,57 +198,75 @@ function TaxTipCard({
   setTipCents: (cents: number) => void;
   currency: Currency;
 }) {
-  const [taxError, setTaxError] = useState<string | null>(null);
-  const [tipError, setTipError] = useState<string | null>(null);
-
   return (
     <div className="rounded-lg bg-neutral-100 p-3 text-sm">
       <div className="mb-1.5 flex justify-between text-neutral-500">
         <span>Subtotal</span>
         <span className="tabular-nums">{formatCents(subtotal, currency)}</span>
       </div>
-      <div className="mb-1.5">
-        <div className="flex items-center justify-between text-neutral-500">
-          <span>Tax</span>
-          <input
-            key={`tax-${taxCents}`}
-            defaultValue={taxCents === 0 ? "" : (taxCents / 100).toFixed(2)}
-            placeholder="0.00"
-            onChange={() => setTaxError(null)}
-            onBlur={(e) => {
-              const raw = e.target.value.trim();
-              const cents = raw === "" ? 0 : parseCurrencyToCents(raw);
-              if (cents === null) setTaxError("Enter a valid amount, like 5.00");
-              else setTaxCents(cents);
-            }}
-            className={`w-16 text-right ${fieldClass}`}
-          />
-        </div>
-        {taxError && <p className="mt-1 text-xs text-red-600">{taxError}</p>}
-      </div>
-      <div className="mb-1.5">
-        <div className="flex items-center justify-between text-neutral-500">
-          <span>Tip</span>
-          <input
-            key={`tip-${tipCents}`}
-            defaultValue={tipCents === 0 ? "" : (tipCents / 100).toFixed(2)}
-            placeholder="0.00"
-            onChange={() => setTipError(null)}
-            onBlur={(e) => {
-              const raw = e.target.value.trim();
-              const cents = raw === "" ? 0 : parseCurrencyToCents(raw);
-              if (cents === null) setTipError("Enter a valid amount, like 5.00");
-              else setTipCents(cents);
-            }}
-            className={`w-16 text-right ${fieldClass}`}
-          />
-        </div>
-        {tipError && <p className="mt-1 text-xs text-red-600">{tipError}</p>}
-      </div>
+      <MoneyRow
+        key={`tax-${taxCents}`}
+        label="Tax"
+        cents={taxCents}
+        onCommit={setTaxCents}
+        currency={currency}
+      />
+      <MoneyRow
+        key={`tip-${tipCents}`}
+        label="Tip"
+        cents={tipCents}
+        onCommit={setTipCents}
+        currency={currency}
+      />
       <div className="flex justify-between border-t border-neutral-300 pt-1.5 font-medium text-neutral-900">
         <span>Total</span>
         <span className="tabular-nums">{formatCents(subtotal + taxCents + tipCents, currency)}</span>
       </div>
+    </div>
+  );
+}
+
+/**
+ * A labeled amount field (tax or tip). Empty is $0.00 and shows the "0.00"
+ * placeholder; otherwise it shows the currency symbol once you click out.
+ * Give it a `key` that includes the saved amount so it resets on commit.
+ */
+function MoneyRow({
+  label,
+  cents,
+  onCommit,
+  currency,
+}: {
+  label: string;
+  cents: number;
+  onCommit: (cents: number) => void;
+  currency: Currency;
+}) {
+  const [raw, setRaw] = useState(cents === 0 ? "" : (cents / 100).toFixed(2));
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <div className="mb-1.5">
+      <div className="flex items-center justify-between text-neutral-500">
+        <span>{label}</span>
+        <PriceInput
+          value={raw}
+          onChange={(next) => {
+            setRaw(next);
+            setError(null);
+          }}
+          onBlur={() => {
+            const parsed = parsePriceInput(raw);
+            if (parsed === null) setError("Enter a valid amount, like 5.00");
+            else onCommit(parsed);
+          }}
+          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+          currency={currency}
+          placeholder="0.00"
+          className={`w-20 text-right ${fieldClass}`}
+        />
+      </div>
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
 }

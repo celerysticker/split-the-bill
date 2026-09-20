@@ -13,14 +13,12 @@ import { formatCents, type Currency, type UIItem, type UIPerson } from "@/lib/mo
  * assignment.
  */
 export function SummaryView({
-  splitName,
   people,
   items,
   taxCents,
   tipCents,
   currency,
 }: {
-  splitName: string;
   people: UIPerson[];
   items: UIItem[];
   taxCents: number;
@@ -35,25 +33,22 @@ export function SummaryView({
 
   return (
     <div>
-      <p className="text-sm font-medium">{splitName}</p>
-      <p className="mb-3 text-xs text-neutral-400">view only</p>
-
       {/* Desktop: ledger + person cards side by side */}
       <div className="hidden gap-4 md:flex">
         <div className="flex-[2.1]">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-wide text-neutral-400">
-                <th className="pb-1.5 font-normal">Item</th>
-                <th className="pb-1.5 font-normal">Price</th>
+                <th className="pb-1.5 pr-4 font-normal">Item</th>
+                <th className="pb-1.5 pr-4 font-normal">Price</th>
                 <th className="pb-1.5 font-normal">Assigned to</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.id} className="border-t border-neutral-200">
-                  <td className="py-1.5">{item.name}</td>
-                  <td className="py-1.5 tabular-nums">{formatCents(item.priceCents, currency)}</td>
+                  <td className="py-1.5 pr-4">{item.name}</td>
+                  <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{formatCents(item.priceCents, currency)}</td>
                   <td className="py-1.5 text-neutral-500">
                     {item.assigneeIds
                       .map((id) => people.find((p) => p.id === id)?.name)
@@ -63,13 +58,13 @@ export function SummaryView({
                 </tr>
               ))}
               <tr className="border-t border-neutral-200 text-neutral-500">
-                <td className="py-1.5">Tax + tip</td>
-                <td className="py-1.5 tabular-nums">{formatCents(taxCents + tipCents, currency)}</td>
+                <td className="whitespace-nowrap py-1.5 pr-4">Tax + tip</td>
+                <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{formatCents(taxCents + tipCents, currency)}</td>
                 <td />
               </tr>
               <tr className="border-t border-neutral-300 font-medium">
-                <td className="py-1.5">Total</td>
-                <td className="py-1.5 tabular-nums">{formatCents(grandTotal, currency)}</td>
+                <td className="py-1.5 pr-4">Total</td>
+                <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{formatCents(grandTotal, currency)}</td>
                 <td />
               </tr>
             </tbody>
@@ -79,7 +74,7 @@ export function SummaryView({
           {people.map((p) => (
             <div
               key={p.id}
-              className="flex items-center justify-between rounded-lg bg-neutral-100 px-3 py-2.5 text-sm"
+              className="flex items-center justify-between gap-3 rounded-lg bg-neutral-100 px-3 py-2.5 text-sm"
             >
               <span className="flex items-center gap-2">
                 <PersonAvatar name={p.name} position={p.position} />
@@ -104,7 +99,7 @@ export function SummaryView({
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : p.id)}
-                className="flex w-full cursor-pointer items-center justify-between"
+                className="flex w-full cursor-pointer items-center justify-between gap-3"
               >
                 <span className="flex items-center gap-2">
                   <PersonAvatar name={p.name} position={p.position} />
@@ -125,13 +120,13 @@ export function SummaryView({
                       .filter((person): person is UIPerson => person !== undefined);
                     const share = splitCents(item.priceCents, assignees)[p.id] ?? 0;
                     return (
-                      <div key={item.id} className="flex justify-between">
+                      <div key={item.id} className="flex justify-between gap-3">
                         <span>{item.name}</span>
                         <span className="tabular-nums">{formatCents(share, currency)}</span>
                       </div>
                     );
                   })}
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span>Tax + tip share</span>
                     <span className="tabular-nums">
                       {formatCents(total?.taxTipCents ?? 0, currency)}

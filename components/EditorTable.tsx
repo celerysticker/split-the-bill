@@ -4,12 +4,8 @@ import { useRef, useState } from "react";
 import { AssignmentSheet } from "@/components/AssignmentSheet";
 import { AssignmentSummaryButton } from "@/components/AssignmentSummaryButton";
 import { AssignmentToggle } from "@/components/AssignmentToggle";
-import {
-  parseCurrencyToCents,
-  parsePriceToCents,
-  type UIItem,
-  type UIPerson,
-} from "@/lib/mock-data";
+import { ItemPriceInput, PriceInput } from "@/components/PriceInput";
+import { parsePriceInput, type Currency, type UIItem, type UIPerson } from "@/lib/mock-data";
 import { DESKTOP_INLINE_TOGGLE_LIMIT, fieldClass, inlineEditClass } from "@/lib/ui";
 
 const DRAFT_SHEET_TARGET = "__draft__";
@@ -34,6 +30,7 @@ export function EditorTable({
   onUpdateItem,
   onToggleAssignment,
   onRemoveItem,
+  currency,
 }: {
   people: UIPerson[];
   items: UIItem[];
@@ -41,6 +38,7 @@ export function EditorTable({
   onUpdateItem: (itemId: string, updates: { name?: string; priceCents?: number }) => void;
   onToggleAssignment: (itemId: string, personId: string) => void;
   onRemoveItem: (itemId: string) => void;
+  currency: Currency;
 }) {
   const [draftName, setDraftName] = useState("");
   const [draftPrice, setDraftPrice] = useState("");
@@ -61,7 +59,7 @@ export function EditorTable({
   function confirm() {
     const name = draftName.trim();
     const rawPrice = draftPrice.trim();
-    const cents = rawPrice === "" ? 0 : parseCurrencyToCents(rawPrice);
+    const cents = parsePriceInput(rawPrice);
     if (!name && cents === null) {
       setError("Enter an item name and a valid price");
       return;
@@ -140,17 +138,12 @@ export function EditorTable({
                 />
               </td>
               <td className="py-2 pr-2 tabular-nums">
-                <input
+                <ItemPriceInput
                   key={`${item.id}-price-${item.priceCents}`}
-                  defaultValue={(item.priceCents / 100).toFixed(2)}
-                  onBlur={(e) => {
-                    const cents = parsePriceToCents(e.target.value);
-                    if (cents !== null) onUpdateItem(item.id, { priceCents: cents });
-                    else e.target.value = (item.priceCents / 100).toFixed(2);
-                  }}
-                  onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                  inputMode="decimal"
-                  className={`w-16 tabular-nums ${inlineEditClass}`}
+                  cents={item.priceCents}
+                  currency={currency}
+                  onCommit={(priceCents) => onUpdateItem(item.id, { priceCents })}
+                  className={`w-20 tabular-nums ${inlineEditClass}`}
                 />
               </td>
               {useSheet ? (
@@ -202,16 +195,16 @@ export function EditorTable({
               />
             </td>
             <td className={error ? "pt-2 pb-1 pr-2" : "py-2 pr-2"}>
-              <input
+              <PriceInput
                 value={draftPrice}
-                onChange={(e) => {
-                  setDraftPrice(e.target.value);
+                onChange={(raw) => {
+                  setDraftPrice(raw);
                   setError(null);
                 }}
                 onKeyDown={onKeyDown}
+                currency={currency}
                 placeholder="0.00"
-                inputMode="decimal"
-                className={`w-16 ${fieldClass}`}
+                className={`w-20 ${fieldClass}`}
               />
             </td>
             {useSheet ? (

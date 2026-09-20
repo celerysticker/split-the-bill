@@ -39,15 +39,6 @@ export function formatCents(cents: number, currency: Currency = "USD"): string {
   });
 }
 
-/** Parses a user-typed price string ("9.5", "$9.50") into integer cents, or null if invalid. */
-export function parsePriceToCents(raw: string): number | null {
-  const cleaned = raw.replace(/[^0-9.]/g, "");
-  if (cleaned === "") return null;
-  const value = Number(cleaned);
-  if (!Number.isFinite(value) || value < 0) return null;
-  return Math.round(value * 100);
-}
-
 const STRICT_PRICE_RE = /^\d+(\.\d{1,2})?$/;
 
 /**
@@ -62,4 +53,15 @@ export function parseCurrencyToCents(raw: string): number | null {
   const trimmed = raw.trim();
   if (!STRICT_PRICE_RE.test(trimmed)) return null;
   return Math.round(Number(trimmed) * 100);
+}
+
+/**
+ * Parses what's typed into a price field: empty means $0.00 (an item can be
+ * free), and a trailing "." from mid-typing ("12.") counts as whole dollars.
+ * Returns null for anything that isn't a valid amount.
+ */
+export function parsePriceInput(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") return 0;
+  return parseCurrencyToCents(trimmed.endsWith(".") ? trimmed.slice(0, -1) : trimmed);
 }
