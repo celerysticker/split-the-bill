@@ -41,6 +41,10 @@ export function EditorList({
   const [sheetItemId, setSheetItemId] = useState<string | null>(null);
 
   const useSheet = people.length > INLINE_TOGGLE_LIMIT;
+  // Sized to the assignment control so the item name gets the leftover room.
+  const cols = useSheet
+    ? "grid-cols-[minmax(0,1fr)_76px_104px_16px]"
+    : "grid-cols-[minmax(0,1fr)_76px_48px_16px]";
   const sheetItem = items.find((i) => i.id === sheetItemId) ?? null;
 
   function confirm() {
@@ -69,7 +73,7 @@ export function EditorList({
   return (
     <div className="flex flex-col gap-1.5">
       {items.length > 0 && (
-        <div className="grid grid-cols-[1fr_76px_104px_16px] gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400">
+        <div className={`grid ${cols} gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400`}>
           <span>Item</span>
           <span>Price</span>
           {useSheet ? (
@@ -91,7 +95,7 @@ export function EditorList({
         return (
           <div
             key={item.id}
-            className="grid grid-cols-[1fr_76px_104px_16px] items-center gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-sm"
+            className={`grid ${cols} items-center gap-2 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-base md:text-sm`}
           >
             <input
               key={`${item.id}-name-${item.name}`}

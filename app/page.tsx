@@ -95,7 +95,7 @@ export default function Home() {
               value={splitName}
               onChange={(e) => setSplitName(e.target.value)}
               placeholder="Name this split"
-              className={`flex-1 text-base font-medium ${inlineEditClass}`}
+              className={`min-w-0 flex-1 text-base font-medium ${inlineEditClass}`}
             />
             <select
               value={currency}
@@ -199,7 +199,7 @@ function TaxTipCard({
   currency: Currency;
 }) {
   return (
-    <div className="rounded-lg bg-neutral-100 p-3 text-sm">
+    <div className="rounded-lg bg-neutral-100 p-3 text-base md:text-sm">
       <div className="mb-1.5 flex justify-between text-neutral-500">
         <span>Subtotal</span>
         <span className="tabular-nums">{formatCents(subtotal, currency)}</span>

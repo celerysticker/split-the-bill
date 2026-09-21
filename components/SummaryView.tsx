@@ -95,7 +95,7 @@ export function SummaryView({
           const total = totalsByPersonId[p.id];
           const personItems = items.filter((i) => i.assigneeIds.includes(p.id));
           return (
-            <div key={p.id} className="rounded-lg bg-neutral-100 px-3 py-2 text-sm">
+            <div key={p.id} className="rounded-lg bg-neutral-100 px-3 py-2 text-base md:text-sm">
               <button
                 type="button"
                 onClick={() =>
@@ -117,7 +117,7 @@ export function SummaryView({
                 </span>
               </button>
               {isExpanded && (
-                <div className="mt-1.5 flex flex-col gap-1 border-t border-neutral-200 pt-1.5 text-xs text-neutral-500">
+                <div className="mt-1.5 flex flex-col gap-1 border-t border-neutral-200 pt-1.5 text-sm text-neutral-500 md:text-xs">
                   {personItems.map((item) => {
                     const assignees = item.assigneeIds
                       .map((id) => people.find((person) => person.id === id))
@@ -141,7 +141,7 @@ export function SummaryView({
             </div>
           );
         })}
-        <div className="mt-1 flex justify-between border-t border-neutral-200 pt-2 text-sm font-medium">
+        <div className="mt-1 flex justify-between border-t border-neutral-200 pt-2 text-base font-medium md:text-sm">
           <span>Total</span>
           <span className="tabular-nums">{formatCents(grandTotal, currency)}</span>
         </div>

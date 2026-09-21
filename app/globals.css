@@ -12,12 +12,13 @@ body {
 }
 
 /* iOS Safari zooms into any focused input under 16px and never zooms back
-   out. Bump to 16px only while focused so fields keep their normal size at
-   rest (and the page never zooms) without disabling pinch-zoom. */
+   out. Keep form controls at 16px on phones, always, so nothing resizes on
+   focus and pinch-zoom stays available. Surrounding mobile text is sized to
+   match (see `max-md:text-base` in the components). */
 @media (max-width: 767px) {
-  input:focus,
-  select:focus,
-  textarea:focus {
+  input,
+  select,
+  textarea {
     font-size: 16px;
   }
 }
