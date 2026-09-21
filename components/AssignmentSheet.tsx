@@ -5,8 +5,8 @@ import { PersonAvatar } from "@/components/PersonAvatar";
 import type { UIPerson } from "@/lib/mock-data";
 
 /**
- * The >4-person fallback (mobile only — see the PRD, section 4.7): a native
- * <dialog> checklist with a "select all" shortcut, instead of inline
+ * The many-people fallback (see the PRD, section 4.7): a native <dialog>
+ * checklist, centered on desktop and a full-screen sheet on mobile, with a "select all" shortcut, instead of inline
  * per-person toggle circles that stop fitting past four people.
  */
 export function AssignmentSheet({
@@ -41,7 +41,7 @@ export function AssignmentSheet({
     <dialog
       ref={ref}
       onClose={onClose}
-      className="w-72 rounded-xl border border-neutral-200 bg-white p-4 backdrop:bg-black/40"
+      className="m-auto w-72 rounded-xl border border-neutral-200 bg-white p-4 backdrop:bg-black/40 max-md:h-dvh max-md:max-h-none max-md:w-full max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:open:flex max-md:flex-col"
     >
       <p className="mb-3 text-xs text-neutral-500">Assign — {itemName}</p>
       <label className="mb-1.5 flex cursor-pointer items-center gap-2 rounded-lg bg-neutral-100 px-2 py-1.5 text-sm font-medium">
@@ -53,7 +53,7 @@ export function AssignmentSheet({
         />
         Select all
       </label>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 max-md:flex-1 max-md:overflow-y-auto">
         {people.map((p) => (
           <label
             key={p.id}

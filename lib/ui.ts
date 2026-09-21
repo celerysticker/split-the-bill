@@ -17,5 +17,5 @@ export const inlineEditClass = `rounded border border-transparent bg-transparent
 // (PRD 4.7). Mobile rows run out of room fast; a desktop table has a real
 // column per person, so it can hold more before that stops scaling —
 // hence the higher desktop threshold.
-export const INLINE_TOGGLE_LIMIT = 4;
+export const INLINE_TOGGLE_LIMIT = 2;
 export const DESKTOP_INLINE_TOGGLE_LIMIT = 8;

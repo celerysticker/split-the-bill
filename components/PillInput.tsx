@@ -4,6 +4,10 @@ import { useState } from "react";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { personColor } from "@/lib/person-colors";
 
+function capitalizeWords(name: string) {
+  return name.replace(/(^|\s)(\S)/g, (_, space, ch) => space + ch.toUpperCase());
+}
+
 export type Pill = { id: string; name: string; position: number };
 
 /**
@@ -16,7 +20,7 @@ export function PillInput({
   pills,
   onAdd,
   onRemove,
-  placeholder = "Add another…",
+  placeholder = "Add person…",
 }: {
   pills: Pill[];
   onAdd: (name: string) => void;
@@ -28,8 +32,26 @@ export function PillInput({
   function commit() {
     const name = draft.trim();
     if (name === "") return;
-    onAdd(name);
+    onAdd(capitalizeWords(name));
     setDraft("");
+  }
+
+  // Mobile keyboards often don't report "," as a keydown key, so a comma
+  // typed mid-field would leave "alice, bob" in one input with only the
+  // first letter auto-capitalized. Commit each comma-terminated token as
+  // its own pill so the field is empty (and auto-capitalizes) again.
+  function handleChange(value: string) {
+    if (!value.includes(",")) {
+      setDraft(value);
+      return;
+    }
+    const parts = value.split(",");
+    const rest = parts.pop() ?? "";
+    for (const part of parts) {
+      const name = part.trim();
+      if (name) onAdd(capitalizeWords(name));
+    }
+    setDraft(rest.trimStart());
   }
 
   return (
@@ -56,7 +78,8 @@ export function PillInput({
       })}
       <input
         value={draft}
-        onChange={(e) => setDraft(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
+        autoCapitalize="words"
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === ",") {
             e.preventDefault();

@@ -29,7 +29,7 @@ export function SummaryView({
   const totalsByPersonId = Object.fromEntries(totals.map((t) => [t.personId, t]));
   const billSubtotal = items.reduce((sum, i) => sum + i.priceCents, 0);
   const grandTotal = billSubtotal + taxCents + tipCents;
-  const [expandedId, setExpandedId] = useState<string | null>(people[0]?.id ?? null);
+  const [expandedIds, setExpandedIds] = useState<string[]>(people[0] ? [people[0].id] : []);
 
   return (
     <div>
@@ -91,14 +91,18 @@ export function SummaryView({
       {/* Mobile: person-first cards, first one expanded */}
       <div className="flex flex-col gap-1.5 md:hidden">
         {people.map((p) => {
-          const isExpanded = expandedId === p.id;
+          const isExpanded = expandedIds.includes(p.id);
           const total = totalsByPersonId[p.id];
           const personItems = items.filter((i) => i.assigneeIds.includes(p.id));
           return (
             <div key={p.id} className="rounded-lg bg-neutral-100 px-3 py-2 text-sm">
               <button
                 type="button"
-                onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                onClick={() =>
+                  setExpandedIds((prev) =>
+                    isExpanded ? prev.filter((id) => id !== p.id) : [...prev, p.id],
+                  )
+                }
                 className="flex w-full cursor-pointer items-center justify-between gap-3"
               >
                 <span className="flex items-center gap-2">

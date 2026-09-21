@@ -9,8 +9,8 @@ import { parsePriceInput, type Currency, type UIItem, type UIPerson } from "@/li
 import { INLINE_TOGGLE_LIMIT, fieldClass, inlineEditClass } from "@/lib/ui";
 
 /**
- * Mobile editing — stacked cards. Assignment is inline toggle circles up to
- * four people; past that, every row collapses to a summary + tap-to-open
+ * Mobile editing — stacked cards. Assignment is inline toggle boxes up to
+ * two people (each column labeled with an initial); past that, every row collapses to a summary + tap-to-open
  * sheet (PRD, section 4.7), so assignment stays equally fast for everyone
  * rather than favoring whoever fits in the first few slots.
  *
@@ -72,7 +72,17 @@ export function EditorList({
         <div className="grid grid-cols-[1fr_76px_104px_16px] gap-2 px-2.5 text-[11px] uppercase tracking-wide text-neutral-400">
           <span>Item</span>
           <span>Price</span>
-          <span>Assigned</span>
+          {useSheet ? (
+            <span>Assigned</span>
+          ) : (
+            <span className="flex gap-1.5">
+              {people.map((p) => (
+                <span key={p.id} className="w-[18px] flex-none text-center">
+                  {p.name.trim().charAt(0).toUpperCase()}
+                </span>
+              ))}
+            </span>
+          )}
           <span />
         </div>
       )}
