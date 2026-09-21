@@ -96,6 +96,7 @@ export function EditorList({
             <input
               key={`${item.id}-name-${item.name}`}
               defaultValue={item.name}
+              autoComplete="off"
               onBlur={(e) => {
                 const name = e.target.value.trim();
                 if (name) onUpdateItem(item.id, { name });
@@ -155,7 +156,8 @@ export function EditorList({
                 setError(null);
               }}
               onKeyDown={(e) => e.key === "Enter" && confirm()}
-              placeholder="Item name"
+              placeholder="Item"
+              autoComplete="off"
               className={`min-w-0 flex-1 ${fieldClass}`}
             />
             <PriceInput

@@ -128,6 +128,7 @@ export function EditorTable({
                 <input
                   key={`${item.id}-name-${item.name}`}
                   defaultValue={item.name}
+                  autoComplete="off"
                   onBlur={(e) => {
                     const name = e.target.value.trim();
                     if (name) onUpdateItem(item.id, { name });
@@ -190,7 +191,8 @@ export function EditorTable({
                   setError(null);
                 }}
                 onKeyDown={onKeyDown}
-                placeholder="Item name"
+                placeholder="Item"
+                autoComplete="off"
                 className={`w-full ${fieldClass}`}
               />
             </td>

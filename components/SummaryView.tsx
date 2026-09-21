@@ -7,8 +7,8 @@ import { formatCents, type Currency, type UIItem, type UIPerson } from "@/lib/mo
 
 /**
  * Read-only summary. Desktop shows the full itemized ledger and every
- * person's total side by side; mobile is person-first cards with the first
- * one expanded, since there isn't room to show everything at once (PRD,
+ * person's total side by side; mobile is person-first cards, all collapsed
+ * by default, since there isn't room to show everything at once (PRD,
  * sections 4.5 / 4.6). Same column order as the editor: Item → Price →
  * assignment.
  */
@@ -29,7 +29,7 @@ export function SummaryView({
   const totalsByPersonId = Object.fromEntries(totals.map((t) => [t.personId, t]));
   const billSubtotal = items.reduce((sum, i) => sum + i.priceCents, 0);
   const grandTotal = billSubtotal + taxCents + tipCents;
-  const [expandedIds, setExpandedIds] = useState<string[]>(people[0] ? [people[0].id] : []);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
   return (
     <div>
@@ -88,7 +88,7 @@ export function SummaryView({
         </div>
       </div>
 
-      {/* Mobile: person-first cards, first one expanded */}
+      {/* Mobile: person-first cards, all collapsed */}
       <div className="flex flex-col gap-1.5 md:hidden">
         {people.map((p) => {
           const isExpanded = expandedIds.includes(p.id);

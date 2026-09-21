@@ -80,6 +80,7 @@ export function PillInput({
         value={draft}
         onChange={(e) => handleChange(e.target.value)}
         autoCapitalize="words"
+        autoComplete="off"
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === ",") {
             e.preventDefault();
